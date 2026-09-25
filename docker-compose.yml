@@ -1,0 +1,22 @@
+services:
+  server:
+    build: ./server
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: 4000
+      JWT_SECRET: ${JWT_SECRET:-dev-only-change-me}
+      DB_PATH: /data/data.sqlite
+      CLIENT_ORIGIN: http://localhost:5173
+    volumes:
+      - todo-data:/data
+
+  client:
+    build: ./client
+    ports:
+      - "5173:80"
+    depends_on:
+      - server
+
+volumes:
+  todo-data:
