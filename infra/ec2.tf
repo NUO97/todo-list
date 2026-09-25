@@ -9,14 +9,10 @@ data "aws_subnets" "default" {
   }
 }
 
-data "aws_ami" "al2023" {
-  most_recent = true
-  owners      = ["amazon"]
-
-  filter {
-    name   = "name"
-    values = ["al2023-ami-*-x86_64"]
-  }
+# AWS-published pointer to the latest standard AL2023 AMI. A name filter like
+# "al2023-ami-*" also matches the ECS/Neuron variants (30GB root snapshots).
+data "aws_ssm_parameter" "al2023" {
+  name = "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
 }
 
 # Only HTTP is exposed. There is no SSH rule and no key pair anywhere in this
@@ -51,7 +47,7 @@ locals {
 }
 
 resource "aws_instance" "app" {
-  ami                    = data.aws_ami.al2023.id
+  ami                    = data.aws_ssm_parameter.al2023.value
   instance_type          = var.instance_type
   subnet_id              = data.aws_subnets.default.ids[0]
   vpc_security_group_ids = [aws_security_group.app.id]
