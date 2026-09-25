@@ -6,3 +6,11 @@ build/
 *.sqlite-journal
 coverage/
 .DS_Store
+
+# Terraform
+infra/.terraform/
+infra/*.tfstate
+infra/*.tfstate.*
+infra/*.tfvars
+infra/crash.log
+infra/crash.*.log
