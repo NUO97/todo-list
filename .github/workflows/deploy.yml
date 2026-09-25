@@ -63,7 +63,7 @@ jobs:
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "${{ vars.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
-            --parameters 'commands=["sudo /opt/todo-list/deploy.sh"]' \
+            --parameters 'commands=["if [ -x /opt/todo-list/deploy.sh ]; then sudo /opt/todo-list/deploy.sh; else echo \"deploy.sh not found; running inline fallback deploy\"; cd /opt/todo-list; aws ecr get-login-password --region ${{ vars.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.ecr-login.outputs.registry }}; export JWT_SECRET; JWT_SECRET=$(aws ssm get-parameter --name /todo-list/prod/JWT_SECRET --with-decryption --region ${{ vars.AWS_REGION }} --query \"Parameter.Value\" --output text); docker compose pull; docker compose up -d; docker image prune -f; fi"]' \
             --query "Command.CommandId" --output text)
 
           # Don't let a failed wait short-circuit the script - we still want
