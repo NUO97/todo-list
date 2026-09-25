@@ -27,3 +27,9 @@ variable "github_deploy_branch" {
   type        = string
   default     = "main"
 }
+
+variable "github_deploy_workflow" {
+  description = "Path (within the repo) to the workflow file allowed to assume the deploy role via OIDC"
+  type        = string
+  default     = ".github/workflows/deploy.yml"
+}

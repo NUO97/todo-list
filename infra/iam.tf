@@ -29,22 +29,19 @@ data "aws_iam_policy_document" "github_actions_assume" {
       values   = ["sts.amazonaws.com"]
     }
 
-    # Matched on the individual `repository`/`ref` claims rather than the
-    # composite `sub` string, since GitHub's "immutable" OIDC subject format
-    # (owner/repo suffixed with their numeric IDs, e.g.
-    # "repo:OWNER@OWNER_ID/REPO@REPO_ID:ref:...") changes what `sub` looks
-    # like depending on account/repo settings - these two claims stay plain
-    # values either way.
+    # AWS requires every GitHub Actions OIDC trust policy to include a scoped
+    # `sub` or `job_workflow_ref` condition (rejects policies that omit both,
+    # via a MalformedPolicyDocument error on apply). `job_workflow_ref` is
+    # used here rather than `sub` because it stays a plain
+    # "owner/repo/workflow-path@ref" string regardless of whether the account
+    # has GitHub's "immutable" subject claim format enabled (which suffixes
+    # `sub` with numeric owner/repo IDs, e.g. "repo:OWNER@ID/REPO@ID:ref:...").
+    # It also scopes to this exact workflow file, not just any workflow in
+    # the repo.
     condition {
       test     = "StringEquals"
-      variable = "token.actions.githubusercontent.com:repository"
-      values   = [var.github_repository]
-    }
-
-    condition {
-      test     = "StringEquals"
-      variable = "token.actions.githubusercontent.com:ref"
-      values   = ["refs/heads/${var.github_deploy_branch}"]
+      variable = "token.actions.githubusercontent.com:job_workflow_ref"
+      values   = ["${var.github_repository}/${var.github_deploy_workflow}@refs/heads/${var.github_deploy_branch}"]
     }
   }
 }
