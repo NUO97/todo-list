@@ -29,10 +29,22 @@ data "aws_iam_policy_document" "github_actions_assume" {
       values   = ["sts.amazonaws.com"]
     }
 
+    # Matched on the individual `repository`/`ref` claims rather than the
+    # composite `sub` string, since GitHub's "immutable" OIDC subject format
+    # (owner/repo suffixed with their numeric IDs, e.g.
+    # "repo:OWNER@OWNER_ID/REPO@REPO_ID:ref:...") changes what `sub` looks
+    # like depending on account/repo settings - these two claims stay plain
+    # values either way.
     condition {
       test     = "StringEquals"
-      variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_repository}:ref:refs/heads/${var.github_deploy_branch}"]
+      variable = "token.actions.githubusercontent.com:repository"
+      values   = [var.github_repository]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "token.actions.githubusercontent.com:ref"
+      values   = ["refs/heads/${var.github_deploy_branch}"]
     }
   }
 }
