@@ -1,0 +1,256 @@
+:root {
+  --color-bg: #f7f7fb;
+  --color-surface: #ffffff;
+  --color-border: #e2e2ea;
+  --color-text: #1f2130;
+  --color-text-muted: #6b6f82;
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-danger: #dc2626;
+  --color-danger-hover: #b91c1c;
+  --radius: 10px;
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 16px;
+  --spacing-4: 24px;
+  --spacing-5: 32px;
+  --max-width: 720px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+main {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--spacing-4) var(--spacing-3);
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin: 0 0 var(--spacing-3);
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius);
+  padding: var(--spacing-2) var(--spacing-3);
+  background: var(--color-primary);
+  color: white;
+  transition: background 0.15s ease;
+}
+
+button:hover {
+  background: var(--color-primary-hover);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+button.danger,
+.delete-button {
+  background: transparent;
+  color: var(--color-danger);
+  border: 1px solid var(--color-border);
+}
+
+button.danger:hover,
+.delete-button:hover {
+  background: var(--color-danger);
+  color: white;
+}
+
+.back-button {
+  background: transparent;
+  color: var(--color-text-muted);
+  padding: var(--spacing-1) var(--spacing-2);
+  margin-bottom: var(--spacing-3);
+}
+
+.back-button:hover {
+  background: var(--color-border);
+}
+
+input,
+textarea {
+  font: inherit;
+  padding: var(--spacing-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  width: 100%;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin: var(--spacing-3) 0 var(--spacing-1);
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-weight: 400;
+}
+
+.checkbox-label input {
+  width: auto;
+}
+
+/* Auth pages */
+
+.auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+}
+
+.auth-form {
+  width: 100%;
+  max-width: 360px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--spacing-4);
+}
+
+.auth-form button[type='submit'] {
+  width: 100%;
+  margin-top: var(--spacing-3);
+}
+
+.form-error {
+  color: var(--color-danger);
+  font-size: 0.875rem;
+}
+
+/* Task list */
+
+.task-list-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+}
+
+.user-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.task-list-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  margin: var(--spacing-3) 0;
+}
+
+.search-bar {
+  flex: 1;
+  min-width: 160px;
+}
+
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  background: var(--color-primary);
+  color: white;
+  border-radius: var(--radius);
+  padding: var(--spacing-2) var(--spacing-3);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.button-link:hover {
+  background: var(--color-primary-hover);
+}
+
+.task-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--spacing-2) var(--spacing-3);
+}
+
+.drag-handle {
+  background: transparent;
+  color: var(--color-text-muted);
+  padding: var(--spacing-1);
+  cursor: grab;
+  touch-action: none;
+}
+
+.drag-handle:hover {
+  background: var(--color-border);
+}
+
+.task-title {
+  flex: 1;
+  color: var(--color-text);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.task-title:hover {
+  text-decoration: underline;
+}
+
+.task-title.done {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+/* Responsive */
+
+@media (max-width: 480px) {
+  main {
+    padding: var(--spacing-3) var(--spacing-2);
+  }
+
+  .task-list-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .button-link {
+    justify-content: center;
+  }
+}
