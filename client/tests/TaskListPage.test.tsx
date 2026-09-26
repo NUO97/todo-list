@@ -108,4 +108,39 @@ describe('TaskListPage', () => {
       expect(updateTask).toHaveBeenCalledWith('task-1', expect.objectContaining({ completed: true }));
     });
   });
+
+  it('shows an error and keeps the task when deleting fails', async () => {
+    const user = userEvent.setup();
+    deleteTask.mockRejectedValueOnce(new Error('Unauthorized'));
+    renderPage();
+
+    await screen.findByText('Buy milk');
+    await user.click(screen.getByLabelText('Delete Buy milk'));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Unauthorized');
+    expect(screen.getByText('Buy milk')).toBeInTheDocument();
+  });
+
+  it('shows an error and leaves the checkbox unchanged when toggling fails', async () => {
+    const user = userEvent.setup();
+    updateTask.mockRejectedValueOnce(new Error('Unauthorized'));
+    renderPage();
+
+    await screen.findByText('Buy milk');
+    await user.click(screen.getByLabelText('Mark Buy milk as complete'));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Unauthorized');
+    expect(screen.getByLabelText('Mark Buy milk as complete')).not.toBeChecked();
+  });
+
+  it('shows a search-specific empty state instead of the "create your first one" message', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByText('Buy milk');
+    await user.type(screen.getByLabelText('Search tasks'), 'zzz-no-match');
+
+    expect(await screen.findByText('No tasks match your search.')).toBeInTheDocument();
+    expect(screen.queryByText('No tasks yet. Create your first one!')).not.toBeInTheDocument();
+  });
 });

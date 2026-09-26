@@ -84,6 +84,33 @@ describe('tasks routes', () => {
     expect(afterDelete.status).toBe(404);
   });
 
+  it('returns 404 updating or deleting a task id that does not exist', async () => {
+    const updated = await request(app)
+      .put('/api/tasks/does-not-exist')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'Anything', completed: false });
+    expect(updated.status).toBe(404);
+
+    const deleted = await request(app)
+      .delete('/api/tasks/does-not-exist')
+      .set('Authorization', `Bearer ${token}`);
+    expect(deleted.status).toBe(404);
+  });
+
+  it('rejects updating a task with the completed field omitted', async () => {
+    const created = await request(app)
+      .post('/api/tasks')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'Buy milk' });
+
+    const res = await request(app)
+      .put(`/api/tasks/${created.body.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'Buy milk' });
+
+    expect(res.status).toBe(400);
+  });
+
   it('returns 404 for a task belonging to another user', async () => {
     const otherToken = await registerAndLogin(app, 'grace@example.com');
     const created = await request(app)
@@ -121,6 +148,24 @@ describe('tasks routes', () => {
       'Buy milk',
       'Walk the dog',
     ]);
+  });
+
+  it('treats % and _ in a search term as literal characters, not wildcards', async () => {
+    await request(app)
+      .post('/api/tasks')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: '50% off coupon' });
+    await request(app)
+      .post('/api/tasks')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'Totally unrelated task' });
+
+    const res = await request(app)
+      .get('/api/tasks?search=50%25')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.map((t: { title: string }) => t.title)).toEqual(['50% off coupon']);
   });
 
   it('reorders tasks', async () => {

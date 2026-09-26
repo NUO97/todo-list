@@ -10,7 +10,8 @@ export default function TaskDetailPage() {
   const isNew = !id;
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(!isNew);
-  const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isNew || !id) return;
@@ -20,7 +21,7 @@ export default function TaskDetailPage() {
         if (!cancelled) setTask(result);
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load task');
+        if (!cancelled) setLoadError(err instanceof Error ? err.message : 'Failed to load task');
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -45,8 +46,13 @@ export default function TaskDetailPage() {
 
   const handleDelete = async () => {
     if (!id) return;
-    await deleteTask(id);
-    navigate('/tasks');
+    setDeleteError(null);
+    try {
+      await deleteTask(id);
+      navigate('/tasks');
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Failed to delete task');
+    }
   };
 
   if (loading) {
@@ -57,11 +63,11 @@ export default function TaskDetailPage() {
     );
   }
 
-  if (error) {
+  if (loadError) {
     return (
       <main className="task-detail-page">
         <p role="alert" className="form-error">
-          {error}
+          {loadError}
         </p>
       </main>
     );
@@ -89,9 +95,16 @@ export default function TaskDetailPage() {
         submitLabel={isNew ? 'Create Task' : 'Save Changes'}
       />
       {!isNew && (
-        <button type="button" onClick={handleDelete} className="delete-button danger">
-          Delete Task
-        </button>
+        <>
+          {deleteError && (
+            <p role="alert" className="form-error">
+              {deleteError}
+            </p>
+          )}
+          <button type="button" onClick={handleDelete} className="delete-button danger">
+            Delete Task
+          </button>
+        </>
       )}
     </main>
   );
