@@ -8,6 +8,7 @@
   --color-primary-hover: #4338ca;
   --color-danger: #dc2626;
   --color-danger-hover: #b91c1c;
+  --color-success: #16a34a;
   --radius: 10px;
   --spacing-1: 4px;
   --spacing-2: 8px;
@@ -150,6 +151,10 @@ label {
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-2);
+}
+
+.task-list-header h1 {
+  color: var(--color-success);
 }
 
 .user-bar {
