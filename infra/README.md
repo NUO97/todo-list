@@ -93,10 +93,14 @@ terraform destroy
   Fine for a personal/demo deployment; a team setup should use a remote backend (S3 +
   DynamoDB locking, with encryption) instead of local `terraform.tfstate` — and state files
   must never be committed (already covered by the root `.gitignore`).
-- **`user_data` only runs on first boot.** Changing `templates/docker-compose.prod.yml.tpl`
-  or `templates/deploy.sh.tpl` later requires either `terraform apply -replace=aws_instance.app`
-  (replaces the instance) or manually re-running the updated script over SSM — there's no
-  auto-sync mechanism. Intentional simplicity tradeoff for a single-instance setup.
+- **`user_data` only runs on first boot.** AWS has no API to push new `user_data` into a
+  running instance and re-trigger cloud-init, so `aws_instance.app` sets
+  `user_data_replace_on_change = true` — any change to `templates/user_data.sh.tpl`,
+  `templates/docker-compose.prod.yml.tpl`, or `templates/deploy.sh.tpl` makes the next plain
+  `terraform apply` replace the instance automatically (no `-replace` flag needed). Note this
+  also means the instance ID changes on every such apply — update the `EC2_INSTANCE_ID`
+  GitHub repo variable afterward (`terraform output -raw ec2_instance_id`), or the next
+  deploy will target a now-deleted instance.
 - **Plain HTTP.** No domain or TLS certificate is configured, so credentials are
   unencrypted in transit. Adding a domain + [Caddy](https://caddyserver.com/) (or
   certbot + nginx) for automatic HTTPS is the natural next step if this were exposed to

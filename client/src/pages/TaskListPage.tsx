@@ -52,17 +52,25 @@ export default function TaskListPage() {
   }, [debouncedSearch, loadTasks]);
 
   const handleToggleComplete = async (task: Task) => {
-    const updated = await updateTask(task.id, {
-      title: task.title,
-      description: task.description ?? undefined,
-      completed: !task.completed,
-    });
-    setTasks((current) => current.map((item) => (item.id === updated.id ? updated : item)));
+    try {
+      const updated = await updateTask(task.id, {
+        title: task.title,
+        description: task.description ?? undefined,
+        completed: !task.completed,
+      });
+      setTasks((current) => current.map((item) => (item.id === updated.id ? updated : item)));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update task');
+    }
   };
 
   const handleDelete = async (task: Task) => {
-    await deleteTask(task.id);
-    setTasks((current) => current.filter((item) => item.id !== task.id));
+    try {
+      await deleteTask(task.id);
+      setTasks((current) => current.filter((item) => item.id !== task.id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete task');
+    }
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -111,7 +119,7 @@ export default function TaskListPage() {
       {loading ? (
         <p>Loading...</p>
       ) : tasks.length === 0 ? (
-        <p>No tasks yet. Create your first one!</p>
+        <p>{debouncedSearch ? 'No tasks match your search.' : 'No tasks yet. Create your first one!'}</p>
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={tasks.map((task) => task.id)} strategy={verticalListSortingStrategy}>
