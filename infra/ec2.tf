@@ -53,6 +53,13 @@ resource "aws_instance" "app" {
   vpc_security_group_ids = [aws_security_group.app.id]
   iam_instance_profile   = aws_iam_instance_profile.app.name
 
+  # AWS has no API to push new user_data into a running instance and re-run
+  # cloud-init, so without this, Terraform silently updates state on a
+  # user_data change without ever touching the real instance - the next plan
+  # then shows "no changes" even though the instance is still running the old
+  # boot script. This makes any user_data change force an actual replacement.
+  user_data_replace_on_change = true
+
   root_block_device {
     volume_size = 20
     volume_type = "gp3"
